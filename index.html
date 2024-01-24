@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #ffffff;
+        }
+
+        #container {
+            padding: 10px;
+            background-color: #ffffff;
+            display: inline-block;
+        }
+
+        #logo {
+            display: block;
+            margin: 0 auto;
+            width: 25%;
+            background-color: transparent;
+        }
+
+        #map {
+            height: 400px;
+            margin: 10px auto;
+        }
+
+        .metadata-section {
+            text-align: left;
+            padding: 20px;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .active,
+        .collapsible:hover {
+            background-color: #f1f1f1;
+        }
+
+        .content {
+            display: none;
+            padding: 0 18px;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="Blue_Lakes_2024/leaflet/leaflet.css" />
+</head>
+
+<body>
+    <div id="container">
+        <img id="logo" src="Blue_Lakes_2024/Blue_Lakes_Logo.png" alt="Blue Lakes Logo">
+        <div id="map"></div>
+
+        <button class="collapsible">Metadata Section 1</button>
+        <div class="content metadata-section">
+            <p>Metadata content goes here.</p>
+        </div>
+
+        <button class="collapsible">Metadata Section 2</button>
+        <div class="content metadata-section">
+            <p>Metadata content goes here.</p>
+        </div>
+    </div>
+
+    <script src="Blue_Lakes_2024/leaflet/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Load GeoJSON file
+        fetch('Blue_Lakes_2024/OHN_ALL_Cleaned.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data).addTo(map);
+            });
+
+        // Collapsible sections
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
