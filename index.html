@@ -54,53 +54,135 @@
             overflow: hidden;
         }
     </style>
-    <link rel="stylesheet" href="Blue_Lakes_2024/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="https://github.com/TheLandBetweenGit/Blue_Lakes_2024/leaflet/leaflet.css" />
 </head>
 
 <body>
     <div id="container">
-        <img id="logo" src="Blue_Lakes_2024/Blue_Lakes_Logo.png" alt="Blue Lakes Logo">
+        <img id="logo" src="https://github.com/TheLandBetweenGit/Blue_Lakes_2024/Blue_Lakes_Logo.png" alt="Blue Lakes Logo">
         <div id="map"></div>
+    </div>
 
-        <button class="collapsible">Metadata Section 1</button>
-        <div class="content metadata-section">
-            <p>Metadata content goes here.</p>
-        </div>
-
-        <button class="collapsible">Metadata Section 2</button>
-        <div class="content metadata-section">
-            <p>Metadata content goes here.</p>
+    <div id="dataSources" class="metadata-section">
+        <button class="collapsible" onclick="toggleCollapsible('dataSourcesContent')">Data Sources</button>
+        <div id="dataSourcesContent" class="content">
+            <h4>Data Sources</h4>
+            <ul>
+                <li>Lake Partner Program (LPP)2.1</li>
+                <li>Provincial Water Quality Monitoring Network (MOECP_PWQMN)2.2</li>
+                <li>Water Quality and Management of Lake Trout Lakes (OMOE_WQMR)2.3</li>
+                <li>Inland Lakes and Streams – Physical Conditions (OMOE_ILM)2.4</li>
+            </ul>
         </div>
     </div>
 
-    <script src="Blue_Lakes_2024/leaflet/leaflet.js"></script>
+    <script src="https://github.com/TheLandBetweenGit/Blue_Lakes_2024/leaflet/leaflet.js"></script>
+    <link rel="stylesheet" href="https://github.com/TheLandBetweenGit/Blue_Lakes_2024/leaflet/leaflet.css" />
     <script>
         var map = L.map('map').setView([0, 0], 10);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // Load GeoJSON file
-        fetch('Blue_Lakes_2024/OHN_ALL_Cleaned.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data).addTo(map);
-            });
+        function onEachFeature(feature, layer) {
+            console.log("Feature:", feature);
+            console.log("Properties:", feature.properties);
 
-        // Collapsible sections
-        var coll = document.getElementsByClassName("collapsible");
-        var i;
-
-        for (i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                var content = this.nextElementSibling;
-                if (content.style.display === "block") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
+            var popupContent = "<h3>Feature Attributes</h3>";
+            for (var property in feature.properties) {
+                if (feature.properties.hasOwnProperty(property)) {
+                    popupContent += "<strong>" + property + ":</strong> " + feature.properties[property] + "<br>";
                 }
-            });
+            }
+
+            var encodedLakeName = encodeURIComponent(feature.properties.OFFICIAL_NAME_LABEL);
+
+            // Temperature folders
+            var temperatureFolders = ["Temp"];
+
+            // Check if the file exists in Temperature folders
+            var temperatureLink = null;
+            for (var i = 0; i < temperatureFolders.length; i++) {
+                temperatureLink = "https://github.com/TheLandBetweenGit/Blue_Lakes_2024/" + temperatureFolders[i] + "/" + encodedLakeName + "_temperature_graph.jpg";
+                var temperatureRequest = new XMLHttpRequest();
+                temperatureRequest.open('HEAD', temperatureLink, false);
+                temperatureRequest.send();
+
+                if (temperatureRequest.status !== 404) {
+                    // File exists in the current Temperature folder
+                    popupContent += '<a href="' + temperatureLink + '" target="_blank">Temperature Graph</a>  ';
+                    break;
+                }
+            }
+
+            // If no temperature graph was found, you can display a message
+            if (temperatureRequest.status === 404) {
+                popupContent += '<p>No temperature graph available</p>';
+            }
+
+            // Dissolved oxygen folders
+            var doFolders = ["DO"];
+
+            // Check if the file exists in Dissolved Oxygen folders
+            var doLink = null;
+            for (var j = 0; j < doFolders.length; j++) {
+                doLink = "https://github.com/TheLandBetweenGit/Blue_Lakes_2024/" + doFolders[j] + "/" + encodedLakeName + "_dissolved_oxygen_graph.jpg";
+                var doRequest = new XMLHttpRequest();
+                doRequest.open('HEAD', doLink, false);
+                doRequest.send();
+
+                if (doRequest.status !== 404) {
+                    // File exists in the current Dissolved Oxygen folder
+                    popupContent += '<a href="' + doLink + '" target="_blank">Dissolved Oxygen Graph</a>';
+                    break;
+                }
+            }
+
+            // If no dissolved oxygen graph was found, you can display a message
+            if (doRequest.status === 404) {
+                popupContent += '<p>No dissolved oxygen graph available</p>';
+            }
+
+            // Phosphorus folders
+            var phosphorusFolders = ["Phosphorus"];
+
+            // Check if the file exists in Phosphorus folders
+            var phosphorusLink = null;
+            for (var k = 0; k < phosphorusFolders.length; k++) {
+                phosphorusLink = "https://github.com/TheLandBetweenGit/Blue_Lakes_2024/" + phosphorusFolders[k] + "/" + encodedLakeName + "_phosphorus_graph.jpg";
+                var phosphorusRequest = new XMLHttpRequest();
+                phosphorusRequest.open('HEAD', phosphorusLink, false);
+                phosphorusRequest.send();
+
+                if (phosphorusRequest.status !== 404) {
+                    // File exists in the current Phosphorus folder
+                    popupContent += '<a href="' + phosphorusLink + '" target="_blank">Phosphorus Graph</a>';
+                    break;
+                }
+            }
+
+            // If no phosphorus graph was found, you can display a message
+            if (phosphorusRequest.status === 404) {
+                popupContent += '<p>No phosphorus graph available</p>';
+            }
+
+            layer.bindPopup(popupContent);
+        }
+
+        var geojsonLayer = new L.GeoJSON.AJAX("https://github.com/TheLandBetweenGit/Blue_Lakes_2024/OHN_ALL_Cleaned.geojson", {
+            onEachFeature: onEachFeature,
+        });
+
+        geojsonLayer.addTo(map);
+
+        function toggleCollapsible(elementId) {
+            var content = document.getElementById(elementId);
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
         }
     </script>
 </body>
 
 </html>
+
